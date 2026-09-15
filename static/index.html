@@ -1,0 +1,67 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Kivi — Grounded Memory</title>
+<style>
+:root{--bg:#070a09;--panel:#0f1512;--panel2:#141d18;--text:#f3f1df;--muted:#99a699;--accent:#a8e063;--border:#283329;--danger:#ff8d7a}
+*{box-sizing:border-box} body{margin:0;background:radial-gradient(circle at 20% 0,#192416 0,#070a09 45%);font-family:Inter,system-ui,Segoe UI,sans-serif;color:var(--text)}
+.wrap{max-width:1200px;margin:auto;padding:28px}.top{display:flex;justify-content:space-between;align-items:center;margin-bottom:24px}.brand{font-weight:800;font-size:28px;letter-spacing:-1px}.brand span{color:var(--accent)}
+.badge{font-size:12px;border:1px solid var(--border);padding:6px 9px;border-radius:999px;color:var(--muted)}
+.grid{display:grid;grid-template-columns:1.15fr .85fr;gap:18px}.card{background:rgba(15,21,18,.92);border:1px solid var(--border);border-radius:18px;padding:20px;box-shadow:0 20px 60px rgba(0,0,0,.22)}
+h2{margin:0 0 10px;font-size:18px} p{color:var(--muted);line-height:1.5}.ask{display:flex;gap:10px;margin-top:16px}.ask input{flex:1;background:#090d0b;border:1px solid var(--border);color:var(--text);padding:14px 15px;border-radius:12px;outline:none}.ask button,.btn{border:0;background:var(--accent);color:#071008;font-weight:800;padding:12px 16px;border-radius:12px;cursor:pointer}.btn.secondary{background:transparent;border:1px solid var(--border);color:var(--text)}
+#answer{white-space:pre-wrap;font-size:17px;line-height:1.55;margin-top:18px}.sources{margin-top:16px}.hit{border-top:1px solid var(--border);padding:12px 0}.hit small{color:var(--muted)}
+.tabs{display:flex;gap:7px;margin-bottom:14px}.tab{background:transparent;border:1px solid var(--border);color:var(--muted);padding:8px 11px;border-radius:9px;cursor:pointer}.tab.active{color:var(--text);border-color:#51604f;background:#151d18}
+.list{max-height:530px;overflow:auto}.memory{padding:12px 0;border-bottom:1px solid var(--border)}.memory .meta{font-size:11px;color:var(--muted);margin-bottom:5px}.memory .statement{font-size:14px;line-height:1.4}.actions{display:flex;gap:7px;margin-top:8px}.danger{color:var(--danger)!important;border-color:#4d302a!important}
+textarea{width:100%;min-height:90px;background:#090d0b;border:1px solid var(--border);color:var(--text);padding:12px;border-radius:10px}.tiny{font-size:12px}.row{display:flex;justify-content:space-between;align-items:center;gap:10px}.metric{font-size:26px;font-weight:800;color:var(--accent)}
+@media(max-width:900px){.grid{grid-template-columns:1fr}.wrap{padding:15px}}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="top"><div class="brand">kivi<span>•</span></div><div class="badge">semantic memory · grounded</div></div>
+  <div class="grid">
+    <section class="card">
+      <h2>Hey Kivi</h2>
+      <p>Ask about something that should be recoverable from prior dictations. Kivi will show which remembered context it used.</p>
+      <div class="ask"><input id="q" placeholder="What format do I prefer for meeting notes?"/><button onclick="ask()">Ask</button></div>
+      <div id="answer">Your answer will appear here.</div>
+      <div id="sources" class="sources"></div>
+    </section>
+    <section class="card">
+      <div class="tabs"><button class="tab active" onclick="showTab('memories',this)">Memory</button><button class="tab" onclick="showTab('activity',this)">Activity</button><button class="tab" onclick="showTab('trace',this)">Trace</button></div>
+      <div id="panel-memories" class="list"></div>
+      <div id="panel-activity" class="list" style="display:none"></div>
+      <div id="panel-trace" class="list" style="display:none"></div>
+    </section>
+    <section class="card">
+      <h2>Teach Kivi</h2>
+      <p>Replay one transcript-like record. This is the same ingestion path used by the corpus importer.</p>
+      <textarea id="teach" placeholder="I prefer meeting notes with a short summary followed by action items."></textarea>
+      <div class="actions"><button class="btn" onclick="teach()">Save to memory</button><button class="btn secondary" onclick="forgetAllVisible()">Refresh</button></div>
+      <div id="teachResult" class="tiny" style="margin-top:10px;color:var(--muted)"></div>
+    </section>
+    <section class="card">
+      <div class="row"><div><h2>Corpus / evaluation</h2><p>Import JSONL or inspect the reproducible benchmark.</p></div><div class="metric" id="evalScore">—</div></div>
+      <input id="file" type="file" accept=".jsonl,.txt" style="margin-top:10px" />
+      <div class="actions"><button class="btn" onclick="importFile()">Import JSONL</button><button class="btn secondary" onclick="loadEval()">Load eval</button></div>
+      <div id="evalBox" class="tiny" style="margin-top:12px;color:var(--muted)"></div>
+    </section>
+  </div>
+</div>
+<script>
+async function ask(){const q=document.getElementById('q').value.trim();if(!q)return;document.getElementById('answer').textContent='Thinking…';const r=await fetch('/api/ask',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({query:q})});const d=await r.json();document.getElementById('answer').textContent=d.answer;document.getElementById('sources').innerHTML=(d.hits||[]).slice(0,5).map(h=>`<div class="hit"><b>${escapeHtml(h.memory.statement)}</b><br><small>${h.memory.memory_type} · confidence ${(h.memory.confidence*100).toFixed(0)}% · score ${h.score} · sources ${h.evidence.map(e=>e.id).join(', ')}</small></div>`).join('');}
+async function loadMem(){const r=await fetch('/api/memories');const d=await r.json();document.getElementById('panel-memories').innerHTML=d.map(m=>`<div class="memory"><div class="meta">${m.memory_type} · ${(m.confidence*100).toFixed(0)}% · ${m.status} · evidence ${m.evidence.join(', ')||'—'}</div><div class="statement">${escapeHtml(m.statement)}</div><div class="meta">${escapeHtml(m.decision_reason)}</div><div class="actions"><button class="tab danger" onclick="forget(${m.id})">Forget</button></div></div>`).join('')||'<p>No memories yet.</p>';}
+async function loadActivity(){const r=await fetch('/api/interactions');const d=await r.json();document.getElementById('panel-activity').innerHTML=d.map(i=>`<div class="memory"><div class="meta">#${i.id} · ${i.source} · ${i.occurred_at}</div><div class="statement">${escapeHtml(i.formatted_text)}</div></div>`).join('')||'<p>No interactions yet.</p>';}
+async function loadTrace(){const r=await fetch('/api/traces');const d=await r.json();document.getElementById('panel-trace').innerHTML=d.map(t=>`<div class="memory"><div class="meta">${t.trace_type} · ${t.created_at} · ${t.latency_ms?Math.round(t.latency_ms):0}ms</div><div class="statement">${escapeHtml(t.decision||'')} — ${escapeHtml(t.reason||'')}</div><div class="tiny">${escapeHtml(t.payload_json||'')}</div></div>`).join('')||'<p>No traces yet.</p>';}
+function showTab(which,el){document.querySelectorAll('.tab').forEach(x=>x.classList.remove('active'));el.classList.add('active');['memories','activity','trace'].forEach(x=>document.getElementById('panel-'+x).style.display=x===which?'block':'none');if(which==='memories')loadMem();if(which==='activity')loadActivity();if(which==='trace')loadTrace();}
+async function forget(id){await fetch('/api/forget/'+id,{method:'POST'});loadMem();}
+async function teach(){const text=document.getElementById('teach').value.trim();if(!text)return;const r=await fetch('/api/ingest',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({raw_asr:text,formatted_text:text,source:'demo',metadata:{}})});const d=await r.json();document.getElementById('teachResult').textContent=`Created: ${d.created.map(x=>x.type).join(', ')||'none'} · ignored: ${d.rejected.length} · ${Math.round(d.latency_ms)}ms`;loadMem();}
+async function importFile(){const f=document.getElementById('file').files[0];if(!f)return;const fd=new FormData();fd.append('file',f);const r=await fetch('/api/import',{method:'POST',body:fd});const d=await r.json();document.getElementById('teachResult').textContent=`Imported ${d.count} records`;loadMem();}
+async function loadEval(){const r=await fetch('/api/evaluation');const d=await r.json();document.getElementById('evalScore').textContent=d.overall_score?Math.round(d.overall_score*100)+'%':'—';document.getElementById('evalBox').textContent=d.summary||'No results yet. Run python scripts/evaluate.py';}
+function escapeHtml(s){return String(s).replace(/[&<>'"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[c]))}
+loadMem();loadEval();
+document.getElementById('q').addEventListener('keydown',e=>{if(e.key==='Enter')ask()})
+</script>
+</body></html>

@@ -1,0 +1,76 @@
+{
+  "overall_score": 1.0,
+  "summary": "8/8 evaluation cases passed; average query latency 3.0 ms.",
+  "cases": [
+    {
+      "query": "What format do I prefer for meeting notes?",
+      "expected_answerable": true,
+      "passed": true,
+      "top_score": 0.97,
+      "answer": "Based on your history: I prefer meeting notes with a short summary followed by action items.\n\nSources: 1.",
+      "latency_ms": 3.692833000002338
+    },
+    {
+      "query": "When does Atlas launch?",
+      "expected_answerable": true,
+      "passed": true,
+      "top_score": 0.5,
+      "answer": "Based on your history: Remember that Atlas launches in October.\n\nSources: 2.",
+      "latency_ms": 3.0358329999842226
+    },
+    {
+      "query": "What happened with the Atlas review?",
+      "expected_answerable": true,
+      "passed": true,
+      "top_score": 0.7867,
+      "answer": "Based on your history: Yesterday the Atlas review moved to Thursday after the client requested more pricing detail.\n\nSources: 4.",
+      "latency_ms": 2.961796999983335
+    },
+    {
+      "query": "What is my preferred status update format?",
+      "expected_answerable": true,
+      "passed": true,
+      "top_score": 0.72,
+      "answer": "Based on your history: I prefer status update to be brief and end with next steps.\n\nSources: 499, 477, 410, 389, 386, 360, 330, 207, 149, 66, 18.",
+      "latency_ms": 2.745969000017112
+    },
+    {
+      "query": "What is my mother's birthday?",
+      "expected_answerable": false,
+      "passed": true,
+      "top_score": 0.0,
+      "answer": "I don't have enough evidence in your Kivi history to answer that confidently. I\u2019d rather not guess. You can add or say the missing context and I can use it later.",
+      "latency_ms": 2.820370999984334
+    },
+    {
+      "query": "Which city did I live in as a child?",
+      "expected_answerable": false,
+      "passed": true,
+      "top_score": 0.0,
+      "answer": "I don't have enough evidence in your Kivi history to answer that confidently. I\u2019d rather not guess. You can add or say the missing context and I can use it later.",
+      "latency_ms": 3.0055160000017622
+    },
+    {
+      "query": "What is the exact revenue target for next quarter?",
+      "expected_answerable": false,
+      "passed": true,
+      "top_score": 0.2,
+      "answer": "I don't have enough evidence in your Kivi history to answer that confidently. I\u2019d rather not guess. You can add or say the missing context and I can use it later.",
+      "latency_ms": 3.1108100000096783
+    },
+    {
+      "query": "What did we decide about Atlas pricing?",
+      "expected_answerable": true,
+      "passed": true,
+      "top_score": 0.6667,
+      "answer": "Based on your history: We decided Atlas pricing will stay monthly for the first release.\n\nSources: 3.",
+      "latency_ms": 2.764958000000206
+    }
+  ],
+  "metrics": {
+    "interactions": 508,
+    "active_memories": 79,
+    "database_bytes": 512000,
+    "average_latency_ms": 3.0172608749978735
+  }
+}

@@ -1,0 +1,3 @@
+# Product positioning statement
+
+Kivi’s memory should not make an assistant that “knows everything” about a person. It should remember context that removes repeated work. Kivi should learn durable facts, preferences, and meaningful episodes only when supported by what the person actually said. Value appears when Hey Kivi uses that context to finish work faster: finding the right note, adapting an output, or reconnecting separated pieces of work. Kivi must never turn guesses into facts. Every remembered claim needs evidence, can be corrected or forgotten, and should be visible when it changes behaviour. Trust comes from useful memory that remains inspectable and reversible.
